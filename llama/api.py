@@ -44,6 +44,7 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
                                  "messages": [message.to_chat_completion_query() for message in messages],
                                  "max_tokens": max_tokens,
                                  "echo": True,
+                                 "stop": ["[/INST]"],
                                  "temperature": temperature
                              }))
 
