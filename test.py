@@ -8,11 +8,11 @@ def test():
     """
 
     # Create an agent with id 0, recall 10 and initial context
-    init_message = Message(time=0, content="Your name is John. You are a student from Atlanta. You communicate in a terse fashion only saying the minimum necessary. Please impersonate John for the time being.", role="user")
+    init_message = Message(time=0, content="Your name is John. You are a student from Atlanta. You communicate in a terse fashion only saying the minimum necessary. Please impersonate John for the time being.", role="system")
     a = agent.Agent(aid=0, recall=10, initial_context=init_message)
 
     # Have a conversation with the agent
-    m1 = Message(time=1, content="Hi, What is your name ?", role="user")
+    m1 = Message(time=1, content="Hi, What is your name?", role="user")
     print(m1)
     r1 = a.perceive(message=m1, max_tokens=30)
     print(r1)
@@ -32,6 +32,7 @@ def test():
     print(m4)
     r4 = a.perceive(message=m4, max_tokens=30)
     print(r4)
+
 
 
 if __name__ == '__main__':

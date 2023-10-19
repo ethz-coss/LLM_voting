@@ -10,7 +10,7 @@ class Agent:
 
     def perceive(self, message: llama.Message, **kwargs) -> str:
         messages = self.memory.retrieve(time=message.time - self.recall)
-        messages = [llama.Message(time=m.time, content=m.content, role='system') for m in messages] + [message]
+        messages = [llama.Message(time=m.time, content=m.content, role=message.role) for m in messages] + [message]
         answer = llama.chat_request(messages=messages, **kwargs)[-1]
         self.memory.store(message=message)
         self.memory.store(message=answer)
