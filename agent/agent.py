@@ -8,9 +8,9 @@ class Agent:
         self.recall = recall
         self.memory = memory.Memory(context_message=initial_context)
 
-    def perceive(self, message: llama.Message, **kwargs) -> str:
+    def perceive(self, message: llama.Message, **kwargs) -> llama.Message:
         messages = self.memory.retrieve(time=message.time - self.recall)
-        messages = [llama.Message(time=m.time, content= "[INST] " + m.content +  " [/INST]", role=m.role) for m in messages] + [message]
+        messages = [llama.Message(time=m.time, content="[INST] " + m.content + " [/INST]", role=m.role) for m in messages] + [message]
         answer = llama.chat_request(messages=messages, **kwargs)[-1]
         self.memory.store(message=message)
         self.memory.store(message=answer)
