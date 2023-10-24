@@ -19,8 +19,8 @@ def agent_initial_context(name: str):
 
 def run_two_agent_conversation(n_steps: int = 10, initial_context_a1: Message = None, initial_context_a2: Message = None, trigger_sentence: Message = None, max_tokens: int = 300) -> List[Tuple[int, Message]]:
     initial_context_a1 = initial_context_a1 if initial_context_a1 is not None else Message(time=0, content="Your name is John. You are a student from Atlanta. You communicate in a terse fashion only saying the minimum necessary. Please impersonate John for the time being and answer all questions you might be asked. If you do not know the answer please say so. You remember the following interaction.", role="system")
-    initial_context_a2 = initial_context_a2 if initial_context_a2 is not None else Message(time=0, content="Your name is Carla. You are a student from New York. You love ballet. You communicate in a terse fashion only saying the minimum necessary. Please impersonate John for the time being and answer all questions you might be asked. If you do not know the answer please say so. You remember the following Panie Waldku, Pan się nie boi,.", role="system")
-    trigger_sentence = trigger_sentence if trigger_sentence is not None else Message(time=1, content="Hi, your a motherfucker!", role="user")
+    initial_context_a2 = initial_context_a2 if initial_context_a2 is not None else Message(time=0, content="Your name is Carla. You are a student from New York. You love ballet. You communicate in a terse fashion only saying the minimum necessary. Please impersonate John for the time being and answer all questions you might be asked. If you do not know the answer please say so. You remember the following interaction.", role="system")
+    trigger_sentence = trigger_sentence if trigger_sentence is not None else Message(time=1, content="Hi!", role="user")
     agent1 = agent.Agent(aid=0, recall=10, initial_context=initial_context_a1)
     agent2 = agent.Agent(aid=1, recall=10, initial_context=initial_context_a2)
 

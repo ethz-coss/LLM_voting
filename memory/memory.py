@@ -5,8 +5,8 @@ import llama
 
 
 class Memory:
-    def __init__(self, context_message: llama.Message = None):
-        self.memory = [] if context_message is None else [context_message]
+    def __init__(self):
+        self.memory = []
 
     def store(self, message: llama.Message):
         self.memory.append(message)

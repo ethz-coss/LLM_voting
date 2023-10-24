@@ -37,7 +37,7 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
     assert 0 <= temperature <= 2, "temperature must be between 0 and 2"
     assert 1 <= max_tokens <= 2048, "max_tokens must be between 1 and 2048"
     assert len(messages) > 0, "messages must not be empty"
-
+    
     response = requests.post('http://10.249.72.2:8000/v1/chat/completions',
                              headers={'Content-Type': 'application/json'},
                              data=json.dumps({
@@ -48,6 +48,8 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
                                  "temperature": temperature
                              }))
 
+    if 'error' in response.json().keys():
+        print(response.json()['error'])
     answer = response.json()['choices'][0]['message']['content']
     time = int(np.max([message.time for message in messages]) + 1)
     role = 'assistant'
