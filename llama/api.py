@@ -45,7 +45,11 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
                                  "max_tokens": max_tokens,
                                  "echo": True,
                                  "stop": ["[/INST]"],
-                                 "temperature": temperature
+                                 "temperature": temperature,
+                                 "presence_penalty": 1,
+                                 "frequency_penalty": 1,
+                                 "repeat_penalty": 1,
+                                 "mirostat_mode":2
                              }))
 
     if 'error' in response.json().keys():

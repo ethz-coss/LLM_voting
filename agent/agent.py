@@ -14,9 +14,9 @@ class Agent:
     def perceive(self, message: llama.Message, **kwargs) -> llama.Message:
         messages = self.memory.retrieve(time=message.time - self.recall)
 
-        self.initial_context.content = "<s>[INST]<<SYS>>/n" + self.initial_context.content + "/n<</SYS>/>n"
+        self.initial_context.content = "[INST]<<SYS>>\n" + self.initial_context.content + "\n<</SYS>>\n\n"
         message.content += " [/INST]"
-        
+
         messages = [self.initial_context] + [llama.Message(time=m.time, content=m.content, role=m.role) for m in messages] + [message]
         answer = llama.chat_request(messages=messages, **kwargs)[-1]
         self.memory.store(message=message)
