@@ -1,6 +1,7 @@
 import random
 import re
 import sys
+
 import os
 
 sys.path.insert(0, f"{os.path.dirname(os.path.realpath(__file__))}/../")
@@ -63,6 +64,7 @@ header, *lines = projects.strip().split('\n')
 random.shuffle(lines)
 randomized_projects = '\n'.join([header] + lines)
 vote_counts = {i: 0 for i in range(1, 25)}
+test_value = 10
 
 def create_initial_context(persona):
     content = (f"{persona['description']}."
@@ -85,7 +87,7 @@ def run_pb_voting(n_steps: int = 10,
 
     responses = []
 
-    for i in range(min(n_steps, 10)):
+    for i in range(min(n_steps, test_value)):
         current_agent = agents[i]
 
         response = current_agent.perceive(message=trigger_sentence, max_tokens=max_tokens)
