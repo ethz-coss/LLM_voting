@@ -1,5 +1,7 @@
 import random
+import re
 import sys
+
 import os
 
 sys.path.insert(0, f"{os.path.dirname(os.path.realpath(__file__))}/../")
@@ -52,13 +54,20 @@ projects = '''
 #24,Car-free Langstrasse 🎉,🟩 West,🚲 Transportation,"10,000"
 '''
 
+data = pd.read_csv("../data/lab_meta.csv")
+
+personas = [{"ID": row["ID"],
+             "name": f"Participant {row['ID']}",
+             "description": row["Description"]} for _, row in data.iterrows()]
+
 header, *lines = projects.strip().split('\n')
 random.shuffle(lines)
 randomized_projects = '\n'.join([header] + lines)
 vote_counts = {i: 0 for i in range(1, 25)}
+test_value = 10
 
 def create_initial_context(persona):
-    content = (f"Your name is {persona['name']}. {persona['description']}."
+    content = (f"{persona['description']}."
                " You're participating in a citywide Participatory Budgeting vote to decide on how a 50,000 budget should be spent in Zurich."
                " According to your personal preference, put your most prefered 5 projects in a list, using their project IDs with a hashtag in the front ." 
                " Make sure you read through all the projects and make the decision in accordance to your persona. Keep message very short, clear, direct, and concise.")
@@ -78,12 +87,13 @@ def run_pb_voting(n_steps: int = 10,
 
     responses = []
 
-    for i in range(min(n_steps, len(agents))):
+    for i in range(min(n_steps, test_value)):
         current_agent = agents[i]
 
         response = current_agent.perceive(message=trigger_sentence, max_tokens=max_tokens)
 
-        selected_projects = [int(p[1:]) for p in response.content.split() if p.startswith("#") and p[1:].isdigit()]
+        selected_projects = [int(match.group(1)) for match in re.finditer(r'#(\d+)', response.content)]
+        print(selected_projects)
 
         for p in selected_projects:
             if p in vote_counts:
