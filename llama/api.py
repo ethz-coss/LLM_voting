@@ -4,6 +4,7 @@ import json
 import requests
 import numpy as np
 
+API_URL = 'http://10.249.72.2:8000'
 
 class Message:
     def __init__(self, time: int, content: str, role: str):
@@ -38,7 +39,7 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
     assert 1 <= max_tokens <= 2048, "max_tokens must be between 1 and 2048"
     assert len(messages) > 0, "messages must not be empty"
     
-    response = requests.post('http://10.249.72.2:8000/v1/chat/completions',
+    response = requests.post(f'{API_URL}/v1/chat/completions',
                              headers={'Content-Type': 'application/json'},
                              data=json.dumps({
                                  "messages": [message.to_chat_completion_query() for message in messages],
