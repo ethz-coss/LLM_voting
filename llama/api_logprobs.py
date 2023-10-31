@@ -38,7 +38,7 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
     assert 1 <= max_tokens <= 2048, "max_tokens must be between 1 and 2048"
     assert len(messages) > 0, "messages must not be empty"
     
-    response = requests.post('http://10.249.72.2:8000/v1/chat/completions',
+    response = requests.post('http://10.249.72.2:8000/v1/completions',
                              headers={'Content-Type': 'application/json'},
                              data=json.dumps({
                                  "messages": [message.to_chat_completion_query() for message in messages],
@@ -49,7 +49,7 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
                                  "presence_penalty": 1,
                                  "frequency_penalty": 1,
                                  "repeat_penalty": 1,
-                                 "top_k": 5,
+                                 "logprobs": 10,
                                  "mirostat_mode":2
                              }))
 
@@ -57,7 +57,7 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
         print(response.json()['error'])
 
     print(response.json())
-    answer = response.json()['choices'][0]['message']['content']
+    answer = response.json()['choices'][0]['text']
     time = int(np.max([message.time for message in messages]) + 1)
     role = 'assistant'
     messages.append(Message(time=time, content=answer, role=role))

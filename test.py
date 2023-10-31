@@ -8,13 +8,13 @@ def test():
     """
 
     # Create an agent with id 0, recall 10 and initial context
-    init_message = Message(time=0, content="Jesteś asystentem, mówisz tylko po Polsku.", role="system")
+    init_message = Message(time=0, content="You are a helpful assistant.", role="system")
     a = agent.Agent(aid=0, recall=10, initial_context=init_message)
     
     # Have a conversation with the agent
-    m1 = Message(time=0, content="Kim jest Kacper Młodkowski?", role="user")
+    m1 = Message(time=0, content="What is the first letter of the alphabet? Output only a single token.", role="user")
     print(m1)
-    r1 = a.perceive(message=m1, max_tokens=2000)
+    r1 = a.perceive(message=m1, max_tokens=100)
     print(r1)
 
 
