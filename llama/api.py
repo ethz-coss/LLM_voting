@@ -6,6 +6,7 @@ import numpy as np
 
 API_URL = 'http://10.249.72.2:8000'
 
+
 class Message:
     def __init__(self, time: int, content: str, role: str):
         """
@@ -38,7 +39,7 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
     assert 0 <= temperature <= 2, "temperature must be between 0 and 2"
     assert 1 <= max_tokens <= 2048, "max_tokens must be between 1 and 2048"
     assert len(messages) > 0, "messages must not be empty"
-    
+
     response = requests.post(f'{API_URL}/v1/chat/completions',
                              headers={'Content-Type': 'application/json'},
                              data=json.dumps({
@@ -51,7 +52,7 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
                                  "frequency_penalty": 1,
                                  "repeat_penalty": 1,
                                  "top_k": 5,
-                                 "mirostat_mode":2
+                                 "mirostat_mode": 2
                              }))
 
     if 'error' in response.json().keys():
@@ -65,17 +66,19 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
     return messages
 
 
-def complete_request(messages: List[Message], max_tokens: int = 16, temperature: float = 0.8, logprobs: int = 5) -> dict:
+
+def complete_request(messages: List[Message], max_tokens: int = 16, temperature: float = 0.8,
+                     logprobs: int = 5) -> dict:
     assert 0 <= temperature <= 2, "temperature must be between 0 and 2"
     assert 1 <= max_tokens <= 2048, "max_tokens must be between 1 and 2048"
     assert len(messages) > 0, "messages must not be empty"
 
-    response = requests.post('http://10.249.72.2:8000/v1/completions',
+    response = requests.post(f'{API_URL}/v1/completions',
                              headers={'Content-Type': 'application/json'},
                              data=json.dumps({
-                                 "messages": [message.to_chat_completion_query() for message in messages],
+                                 "prompt": " ".join([message.content for message in messages]),
                                  "max_tokens": max_tokens,
-                                 "echo": True,
+                                 "echo": False,
                                  "stop": ["[/INST]"],
                                  "temperature": temperature,
                                  "presence_penalty": 1,
