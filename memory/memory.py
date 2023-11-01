@@ -9,9 +9,6 @@ class Memory:
         self.memory = []
 
     def store(self, message: llama.Message):
-        if message.role == 'user':
-            message.content = "[INST] " + message.content + " [/INST]"
-        
         self.memory.append(message)
 
     def retrieve(self, time: int) -> List[llama.Message]:
