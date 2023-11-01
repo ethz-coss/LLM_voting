@@ -23,3 +23,18 @@ class Agent:
         self.memory.store(message=message)
         self.memory.store(message=answer)
         return answer
+
+
+class Distribution(Agent):
+    """
+    Agent created to output distributions of tokens with logprobs
+    """
+    def perceive(self, message: llama.Message, **kwargs) -> dict:
+        messages = self.memory.retrieve(time=message.time - self.recall)
+
+        messages = [self.initial_context] + [llama.Message(time=m.time, content=m.content, role=m.role) for m in
+                                             messages] + [message]
+        answer = llama.complete_request(messages=messages, **kwargs)
+        # self.memory.store(message=message)
+        # self.memory.store(message=answer)
+        return answer

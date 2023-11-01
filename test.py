@@ -9,14 +9,14 @@ def test():
 
     # Create an agent with id 0, recall 10 and initial context
     init_message = Message(time=0, content="You are a helpful assistant.", role="system")
-    a = agent.Agent(aid=0, recall=10, initial_context=init_message)
-    
+    # a = agent.Agent(aid=0, recall=10, initial_context=init_message)
+    a = agent.Distribution(aid=0, recall=10, initial_context=init_message)
+
     # Have a conversation with the agent
-    m1 = Message(time=0, content="What is the first letter of the alphabet? Output only a single token.", role="user")
+    m1 = Message(time=0, content="What is the first letter of the alphabet?", role="user")  #Output only a single token.
     print(m1)
     r1 = a.perceive(message=m1, max_tokens=100)
     print(r1)
-
 
     # m2 = Message(time=2, content="Cool to meet you John. I am Carla. I am 25 years old. I study architecture.", role="user")
     # print(m2)
