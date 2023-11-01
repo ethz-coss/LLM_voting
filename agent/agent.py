@@ -7,7 +7,8 @@ class Agent:
         self.id = aid
         self.recall = recall
 
-        self.initial_context = llama.Message(time=initial_context.time, content="<s>[INST]<<SYS>>\n" + initial_context.content + "\n<</SYS>>[/INST]\n\n", role=initial_context.role)
+        self.initial_context = initial_context
+        # self.initial_context = llama.Message(time=initial_context.time, content=initial_context.content, role=initial_context.role)
         self.memory = memory.Memory()
 
         

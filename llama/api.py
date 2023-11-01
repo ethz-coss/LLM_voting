@@ -44,8 +44,6 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
                              data=json.dumps({
                                  "messages": [message.to_chat_completion_query() for message in messages],
                                  "max_tokens": max_tokens,
-                                 "echo": True,
-                                 "stop": ["[/INST]"],
                                  "temperature": temperature,
                                  "presence_penalty": 1,
                                  "frequency_penalty": 1,
@@ -57,7 +55,6 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
     if 'error' in response.json().keys():
         print(response.json()['error'])
 
-    print(response.json())
     answer = response.json()['choices'][0]['message']['content']
     time = int(np.max([message.time for message in messages]) + 1)
     role = 'assistant'
