@@ -8,6 +8,7 @@ import pandas as pd
 import agent
 from llama import Message
 import yaml
+from copy import deepcopy
 
 class colors: # You may need to change color settings
     RED = '\033[31m'
@@ -38,7 +39,7 @@ def run_two_agent_conversation(n_steps: int = 10, initial_context_a1: Message = 
     messages = [[1, trigger_sentence]]
     c = [colors.RED, colors.BLUE]
     for i in range(n_steps):
-        current_message = messages[-1][1]
+        current_message = deepcopy(messages[-1][1])
         current_message.role = 'user'
         if i % 2 == 0:
             current_message = agent1.perceive(message=current_message, max_tokens=max_tokens, temperature=temperature)
@@ -53,4 +54,4 @@ def run_two_agent_conversation(n_steps: int = 10, initial_context_a1: Message = 
 
 
 if __name__ == '__main__':
-    messages = run_two_agent_conversation(n_steps=100, max_tokens=100, temperature=0)
+    messages = run_two_agent_conversation(n_steps=20, max_tokens=100, temperature=0)
