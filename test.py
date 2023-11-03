@@ -13,11 +13,13 @@ def test():
     a = agent.Distribution(aid=0, recall=10, initial_context=init_message)
 
     # Have a conversation with the agent
-    m1 = Message(time=0, content="What do when you are out and you do what you do and you are out?", role="user")  #Output only a single token.
+    m1 = Message(time=0, content="What is the first letter of the alphabet?", role="user")  #Output only a single token.
     print(m1)
-    r1 = a.perceive(message=m1, max_tokens=2, temperature=0.8, logprobs=50000)
-    print(r1)
-    print("number of token-logprob pairs", len(r1))
+    logprobs1, ans1 = a.perceive(message=m1, max_tokens=10, temperature=0, logprobs=5)
+
+    print(ans1)
+    for token_probs in logprobs1:
+        print(token_probs)
 
     # m2 = Message(time=2, content="Cool to meet you John. I am Carla. I am 25 years old. I study architecture.", role="user")
     # print(m2)

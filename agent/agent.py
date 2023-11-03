@@ -30,7 +30,7 @@ class Distribution:
     """
     Agent created to output distributions of tokens with logprobs
     """
-    def __init__(self, aid: int, recall: int = 3, initial_context: llama.Message = None):
+    def __init__(self, aid: int, recall: int = 0, initial_context: llama.Message = None):
         self.id = aid
         self.recall = recall
 
@@ -40,12 +40,14 @@ class Distribution:
     def perceive(self, message: llama.Message, max_tokens: int = 10, temperature: float = 0.8, logprobs: int = 5, **kwargs) -> tuple[dict, any]:
         messages = self.memory.retrieve(time=message.time - self.recall)
 
-        messages = [self.initial_context] + [llama.Message(time=m.time, content=m.content, role=m.role) for m in
-                                             messages] + [message]
+        messages = [self.initial_context] + [llama.Message(time=m.time, content=m.content, role=m.role) for m in messages] + [message]
         response = llama.complete_request(messages=messages, max_tokens=max_tokens, temperature=temperature, logprobs=logprobs, **kwargs)
+        
         # self.memory.store(message=message)
         # self.memory.store(message=answer)
         # print(response)
-        top_logprobs = response["choices"][0]["logprobs"]["top_logprobs"][-1]
+
+        top_logprobs = response["choices"][0]["logprobs"]["top_logprobs"]
         answer = response['choices'][0]['text']
+        
         return top_logprobs, answer
