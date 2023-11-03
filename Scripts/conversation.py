@@ -9,6 +9,12 @@ import agent
 from llama import Message
 import yaml
 
+class colors: # You may need to change color settings
+    RED = '\033[31m'
+    ENDC = '\033[m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
 
 def agent_initial_context(name: str):
     file_path = os.path.join(os.path.dirname(__file__), 'persona.yml')
@@ -30,6 +36,7 @@ def run_two_agent_conversation(n_steps: int = 10, initial_context_a1: Message = 
     agent2 = agent.Agent(aid=1, recall=10, initial_context=initial_context_a2)
 
     messages = [[1, trigger_sentence]]
+    c = [colors.RED, colors.BLUE]
     for i in range(n_steps):
         current_message = messages[-1][1]
         current_message.role = 'user'
@@ -40,7 +47,7 @@ def run_two_agent_conversation(n_steps: int = 10, initial_context_a1: Message = 
             current_message = agent2.perceive(message=current_message, max_tokens=max_tokens, temperature=temperature)
             messages.append([agent2.id, current_message])
 
-        print(f'Step {i}', '---', messages[-1][0], messages[-1][1].content)
+        print(f'Step {i} --- {c[i%2]}{messages[-1][0]} {messages[-1][1].content}{colors.ENDC}')
 
     return messages
 
