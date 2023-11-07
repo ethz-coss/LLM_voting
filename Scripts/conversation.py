@@ -54,4 +54,4 @@ def run_two_agent_conversation(n_steps: int = 10, initial_context_a1: Message = 
 
 
 if __name__ == '__main__':
-    messages = run_two_agent_conversation(n_steps=20, max_tokens=100, temperature=0)
+    messages = run_two_agent_conversation(n_steps=20, max_tokens=100, temperature=0.8)

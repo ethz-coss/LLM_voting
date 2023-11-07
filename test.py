@@ -1,5 +1,7 @@
 import agent
+import numpy as np
 from llama import Message
+from copy import deepcopy
 
 
 def test():
@@ -10,16 +12,23 @@ def test():
     # Create an agent with id 0, recall 10 and initial context
     init_message = Message(time=0, content="You are a helpful assistant.", role="system")
     # a = agent.Agent(aid=0, recall=10, initial_context=init_message)
-    a = agent.Distribution(aid=0, recall=10, initial_context=init_message)
+    a = agent.Agent(aid=0, recall=10, initial_context=init_message)    
+    m0 = Message(time=0, content="What is a graden path sentence?", role="user")
 
+    ans0 = a.perceive(message=m0, max_tokens=1000, temperature=0)
+    print(ans0)
+
+    
     # Have a conversation with the agent
-    m1 = Message(time=0, content="What is the first letter of the alphabet?", role="user")  #Output only a single token.
+    m1 = Message(time=1, content="Is the following sentence grammatical: \"While the mother calmed down, the children that were tired and irritable sat on the bed.\"?", role="user")  #Output only a single token.
     print(m1)
-    logprobs1, ans1 = a.perceive(message=m1, max_tokens=10, temperature=0, logprobs=5)
 
+    ans1 = a.perceive(message=m1, max_tokens=1000, temperature=0)
     print(ans1)
-    for token_probs in logprobs1:
-        print(token_probs)
+
+    
+    # for token_probs in logprobs1:
+    #     print([(k, np.exp(token_probs[k])) for k in token_probs.keys()])
 
     # m2 = Message(time=2, content="Cool to meet you John. I am Carla. I am 25 years old. I study architecture.", role="user")
     # print(m2)

@@ -14,13 +14,9 @@ class Agent:
         
     def perceive(self, message: llama.Message, **kwargs) -> llama.Message:
         messages = self.memory.retrieve(time=message.time - self.recall)        
-        # last_message = llama.Message(time=message.time, content=message.content + " [/INST]", role=message.role)
-    
-        # self.initial_context.content = "<s>[INST]<<SYS>>\n" + self.initial_context.content + "\n<</SYS>>\n\n"
-        # message.content += " [/INST]"
 
         messages = [self.initial_context] + [llama.Message(time=m.time, content=m.content, role=m.role) for m in messages] + [message]
-        answer = llama.chat_request(messages=messages, **kwargs)[-1]
+        answer = llama.chat_request(messages=messages, **kwargs)
         self.memory.store(message=message)
         self.memory.store(message=answer)
         return answer
@@ -40,14 +36,11 @@ class Distribution:
     def perceive(self, message: llama.Message, max_tokens: int = 10, temperature: float = 0.8, logprobs: int = 5, **kwargs) -> tuple[dict, any]:
         messages = self.memory.retrieve(time=message.time - self.recall)
 
-        messages = [self.initial_context] + [llama.Message(time=m.time, content=m.content, role=m.role) for m in messages] + [message]
-        response = llama.complete_request(messages=messages, max_tokens=max_tokens, temperature=temperature, logprobs=logprobs, **kwargs)
-        
-        # self.memory.store(message=message)
-        # self.memory.store(message=answer)
-        # print(response)
+        messages = [self.initial_context] + messages + [message]
 
-        top_logprobs = response["choices"][0]["logprobs"]["top_logprobs"]
-        answer = response['choices'][0]['text']
+        answer, logprobs = llama.complete_request(messages=messages, max_tokens=max_tokens, temperature=temperature, logprobs=logprobs, **kwargs)
         
-        return top_logprobs, answer
+        self.memory.store(message=message)
+        self.memory.store(message=answer)
+
+        return answer, logprobs

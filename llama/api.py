@@ -60,11 +60,12 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
     time = int(np.max([message.time for message in messages]) + 1)
     role = 'assistant'
     messages.append(Message(time=time, content=answer, role=role))
-    return messages
+
+    return messages[-1]
 
 
 
-def complete_request(messages: List[Message], max_tokens: int = 16, temperature: float = 0.01,
+def complete_request(messages: List[Message], max_tokens: int = 16, temperature: float = 0.8,
                      logprobs: int = 5) -> dict:
     assert 0 <= temperature <= 2, "temperature must be between 0 and 2"
     assert 1 <= max_tokens <= 2048, "max_tokens must be between 1 and 2048"
@@ -88,4 +89,14 @@ def complete_request(messages: List[Message], max_tokens: int = 16, temperature:
     if 'error' in response.json().keys():
         print(response.json()['error'])
 
-    return response.json()  # return complete response
+    response = response.json()
+
+    answer = response['choices'][0]['text']
+    logprobs = response["choices"][0]["logprobs"]["top_logprobs"]
+
+    time = int(np.max([message.time for message in messages]) + 1)
+    role = 'assistant'
+    messages.append(Message(time=time, content=answer, role=role))
+    
+    return messages[-1], logprobs
+        
