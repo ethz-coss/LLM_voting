@@ -76,7 +76,7 @@ def create_initial_context(persona):
 def run_pb_voting(n_steps: int = 10,
                   trigger_sentence: Message = None,
                   max_tokens: int = 600) -> List[Tuple[int, Message]]:
-    agents = [agent.Agent(aid=i, recall=10, initial_context=create_initial_context(persona))
+    agents = [agent.Agent(aid=i, recall=10, initial_context=create_initial_context(persona), temperature=0)
               for i, persona in enumerate(personas)]
     trigger_sentence = trigger_sentence if trigger_sentence is not None else Message(
         time=1,
