@@ -78,7 +78,7 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name):
     vote_counts_real = defaultdict(int)
     vote_counts_random = defaultdict(int)
 
-    file_base_name = source_file_name.split('/')[-1].split('.')[0]f
+    file_base_name = source_file_name.split('/')[-1].split('.')[0]
     detailed_stats_path = f"outcome/{file_base_name}_detailed_stats.csv"
 
     counter = 1
