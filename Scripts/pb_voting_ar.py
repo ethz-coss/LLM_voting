@@ -111,8 +111,8 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name):
         )
 
 if __name__ == '__main__':
-    source_file_path = '../../aarau/aarau_pb_vote.csv'
-    projects_file_path = '../../aarau/aarau_projects.csv'
+    source_file_path = '../aarau_data/aarau_pb_vote.csv'
+    projects_file_path = '../aarau_data/aarau_projects.csv'
 
     votes_df = pd.read_csv(source_file_path)
     projects_df = pd.read_csv(projects_file_path)
