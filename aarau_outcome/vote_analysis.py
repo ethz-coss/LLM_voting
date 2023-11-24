@@ -2,7 +2,7 @@ import pandas as pd
 import ast
 import os
 
-input_file = 'aarau_pb_vote_sm_2.csv'
+input_file = 'agent_vote/aarau_pb_vote_sm_3.csv'
 base_name = os.path.splitext(input_file)[0]
 output_file = f'{base_name}_insights.json'
 
@@ -21,11 +21,11 @@ top_preferences = df['Top Preferences'].str.get_dummies(sep=', ').sum()
 insights_df = insights_df.assign(**politics_counts, **top_preferences)
 
 def parse_votes(vote_str):
-    if vote_str.startswith("{"):
+    if str(vote_str).startswith("{"):
         vote_str = vote_str.replace("{", "[").replace("}", "]")
     return ast.literal_eval(vote_str)
 
-vote_categories = ['agent_votes', 'random_votes', 'real_votes']
+vote_categories = ['agent_vote', 'random_votes', 'real_votes']
 vote_counts = {category: {} for category in vote_categories}
 
 for category in vote_categories:

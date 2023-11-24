@@ -267,4 +267,4 @@ pyrightconfig.json
 .*.~undo-tree~
 .DS_Store
 \#*
-data/
+lab_data/

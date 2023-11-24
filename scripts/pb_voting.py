@@ -1,7 +1,7 @@
 import random
 import re
 import sys
-
+import csv
 import os
 
 sys.path.insert(0, f"{os.path.dirname(os.path.realpath(__file__))}/../")
@@ -27,34 +27,34 @@ personas = [
 
 
 projects = '''
-"Id,Name,District,Category,Cost
-#1,Planting Workshops at Oerlikon 🌿,🟥 Nord,🌲 Nature,"5,000"
-#2,Footpath Gardens around Train Stations 🌻,🟥 Nord,🌲 Nature,"10,000"
-#3,Kid Festival at Leutschenpark 👶🏻,🟥 Nord,🎻 Culture,"5,000"
-#4,Music Studio at Kulturbahnhof Affoltern 🎸,🟥 Nord,🎻 Culture,"10,000"
-#5,Safe Bike Paths around Irchel Park 🚴🏾‍♀️,🟥 Nord,🚲 Transportation,"5,000"
-#6,More Night Buses to Oerlikon 🚎,🟥 Nord,🚲 Transportation,"10,000"
-#7,Free Open Badi Space in Wollishofen 🏊🏼‍♂️,🟨 Süd,🌲 Nature,"5,000"
-#8,A Neighborhood Garden for Wiedikon 🏡,🟨 Süd,🌲 Nature,"10,000"
-#9,Environmental Film Session for Kids 🎬,🟨 Süd,🎻 Culture,"5,000"
-#10,Car-free Sunday Festivals on Mutschellenstrasse 🎉,🟨 Süd,🎻 Culture,"10,000"
-#11,Free Bike Fixing Workshops 🚴🏼‍♀️,🟨 Süd,🚲 Transportation,"5,000"
-#12,Car Sharing System for Young People 🚗,🟨 Süd,🚲 Transportation,"10,000"
-#13,Transforming City Spaces under Trees into Gardens 🌵,🟦 Ost,🌲 Nature,"5,000"
-#14,More Trees in Bellevue & Sechseläutenplatz 🌳,🟦 Ost,🌲 Nature,"10,000"
-#15,Plant Festival in the City Centre 🪴,🟦 Ost,🎻 Culture,"5,000"
-#16,Multicultural Festival at Sechseläutenplatz  🍻,🟦 Ost,🎻 Culture,"10,000"
-#17,Bike Lanes on Seefeldstrasse 🚴🏽‍♂️,🟦 Ost,🚲 Transportation,"5,000"
-#18,Speed bumps in the City and the Lake Front 🚙,🟦 Ost,🚲 Transportation,"10,000"
-#19,Bird Houses for Zurich-Höngg 🦜,🟩 West,🌲 Nature,"5,000"
-#20,Wet Biotope as Learning Garden in Frankental 👩🏼‍🏫,🟩 West,🌲 Nature,"10,000"
-#21,Dingtheke: Community Things Exchange Library in Wipkingen 📚,🟩 West,🎻 Culture,"5,000"
-#22,Sustainable Cooking Workshop with Kids 🧑🏼‍🍳,🟩 West,🎻 Culture,"10,000"
-#23,Public Bicycle Moving Trailer to be Borrowed 📦,🟩 West,🚲 Transportation,"5,000"
-#24,Car-free Langstrasse 🎉,🟩 West,🚲 Transportation,"10,000"
+Id,Name,District,Category,Cost
+#1,Planting Workshops at Oerlikon,Nord,Nature,5000
+#2,Footpath Gardens around Train Stations,Nord,Nature,10000
+#3,Kid Festival at Leutschenpark,Nord,Culture,5000
+#4,Music Studio at Kulturbahnhof Affoltern,Nord,Culture,10000
+#5,Safe Bike Paths around Irchel Park,Nord,Transportation,5000
+#6,More Night Buses to Oerlikon,Nord,Transportation,10000
+#7,Free Open Badi Space in Wollishofen,Süd,Nature,5000
+#8,A Neighborhood Garden for Wiedikon,Süd,Nature,10000
+#9,Environmental Film Session for Kids,Süd,Culture,5000
+#10,Car-free Sunday Festivals on Mutschellenstrasse,Süd,Culture,10000
+#11,Free Bike Fixing Workshops,Süd,Transportation,5000
+#12,Car Sharing System for Young People,Süd,Transportation,10000
+#13,Transforming City Spaces under Trees into Gardens,Ost,Nature,5000
+#14,More Trees in Bellevue & Sechseläutenplatz,Ost,Nature,10000
+#15,Plant Festival in the City Centre,Ost,Culture,5000
+#16,Multicultural Festival at Sechseläutenplatz,Ost,Culture,10000
+#17,Bike Lanes on Seefeldstrasse,Ost,Transportation,5000
+#18,Speed bumps in the City and the Lake Front,Ost,Transportation,10000
+#19,Bird Houses for Zurich-Höngg,West,Nature,5000
+#20,Wet Biotope as Learning Garden in Frankental,West,Nature,10000
+#21,Dingtheke: Community Things Exchange Library in Wipkingen,West,Culture,5000
+#22,Sustainable Cooking Workshop with Kids,West,Culture,10000
+#23,Public Bicycle Moving Trailer to be Borrowed,West,Transportation,5000
+#24,Car-free Langstrasse,West,Transportation,10000
 '''
 
-data = pd.read_csv("../data/lab_meta.csv")
+data = pd.read_csv("../lab_data/lab_meta.csv")
 
 personas = [{"ID": row["ID"],
              "name": f"Participant {row['ID']}",
@@ -64,7 +64,7 @@ header, *lines = projects.strip().split('\n')
 random.shuffle(lines)
 randomized_projects = '\n'.join([header] + lines)
 vote_counts = {i: 0 for i in range(1, 25)}
-test_value = 10
+test_value = 180
 
 def create_initial_context(persona):
     content = (f"{persona['description']}."
@@ -73,7 +73,7 @@ def create_initial_context(persona):
                " Make sure you read through all the projects and make the decision in accordance to your persona. Keep message very short, clear, direct, and concise.")
     return Message(time=0, content=content, role="system")
 
-def run_pb_voting(n_steps: int = 10,
+def run_pb_voting(n_steps: int = 180,
                   trigger_sentence: Message = None,
                   max_tokens: int = 600) -> List[Tuple[int, Message]]:
     agents = [agent.Agent(aid=i, recall=10, initial_context=create_initial_context(persona), temperature=0)
@@ -81,7 +81,7 @@ def run_pb_voting(n_steps: int = 10,
     trigger_sentence = trigger_sentence if trigger_sentence is not None else Message(
         time=1,
         content=(
-                "What city projects do you think should be funded? Select 5 projects using '#' and project id out of the following list:" + randomized_projects),
+                "What city projects do you think should be funded? Simply select 5 projects out of your personal interest using '#' and project id out of the following list:" + randomized_projects),
         role="user"
     )
 
@@ -107,8 +107,41 @@ def run_pb_voting(n_steps: int = 10,
     sorted_votes = sorted(vote_counts.items(), key=lambda x: x[1], reverse=True)
     for pid, count in sorted_votes:
         print(f'Project {pid}: {count} votes')
+    save_results_to_csv(sorted_votes)
 
     return responses
+
+
+def save_results_to_csv(sorted_votes, projects):
+    projects_data = [line.strip().split(',') for line in projects.strip().split('\n')]
+
+    headers = projects_data[0] + ['Vote Count']
+    projects_data = projects_data[1:]
+
+    outcome_folder = 'aarau_outcome'
+    if not os.path.exists(outcome_folder):
+        os.makedirs(outcome_folder)
+
+    csv_file_path = os.path.join(outcome_folder, 'lab_voting_results.csv')
+
+    with open(csv_file_path, mode='w', newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=headers)
+
+        writer.writeheader()
+
+        for pid, count in sorted_votes:
+            project_line = projects_data[pid - 1]
+            project_data = {
+                'Id': project_line[0],
+                'Name': project_line[1],
+                'District': project_line[2],
+                'Category': project_line[3],
+                'Cost': project_line[4],
+                'Vote Count': count
+            }
+            writer.writerow(project_data)
+
+    return csv_file_path
 
 if __name__ == '__main__':
     messages = run_pb_voting(n_steps=100, max_tokens=500)
