@@ -36,9 +36,9 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name):
     vote_counts_random = defaultdict(int)
     projects_header = "#Id; Title; Cost; Location; Category\n"
 
-    detailed_stats_path = f"outcome/{os.path.splitext(source_file_name)[0]}_detailed_stats.csv"
+    detailed_stats_path = f"../aarau_outcome/agent_vote/{os.path.splitext(source_file_name)[0]}_sm.csv"
     with open(detailed_stats_path, mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=list(personas[0].keys()) + ['response', 'agent_votes', 'random_votes',
+        writer = csv.DictWriter(file, fieldnames=list(personas[0].keys()) + ['response', 'agent_vote', 'random_votes',
                                                                              'real_votes', 'agent_accuracy',
                                                                              'agent_recall', 'random_accuracy',
                                                                              'random_recall'])
@@ -47,7 +47,7 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name):
     for i in range(min(n_steps, len(agents))):
         current_agent = agents[i]
         persona = personas[i]
-        real_votes = set(persona['vote'])
+        real_votes = set(persona['real_votes'])
         n_proj = len(real_votes)
 
         random_projects = random.sample(projects, len(projects))
@@ -75,9 +75,9 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name):
 
         stats = persona.copy()
         stats.update({
-            'agent_votes': str(agent_votes),
-            'random_votes': str(random_votes),
             'real_votes': str(real_votes),
+            'agent_vote': str(agent_votes),
+            'random_votes': str(random_votes),
             'agent_accuracy': agent_accuracy,
             'agent_recall': agent_recall,
             'random_accuracy': random_accuracy,
@@ -106,22 +106,36 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name):
 
         print(
             f"A{current_agent.id} | "
+            f"Age: {persona['Age']} | "
+            f"Gender: {persona['Gender']} | "
+            f"Politics: {persona['Politics']} | "
+            f"Real Votes: {persona['real_votes']} | "
+            f"Agent Votes: {agent_votes} | "
             f"Acc/Rec: {updated_average_agent_accuracy:.1%}/{updated_average_agent_recall:.1%} | "
             f"Ran Acc/Rec: {updated_average_random_accuracy:.1%}/{updated_average_random_recall:.1%}"
         )
 
 if __name__ == '__main__':
-    source_file_path = '../aarau_data/aarau_pb_vote.csv'
-    projects_file_path = '../aarau_data/aarau_projects.csv'
+    source_file_path = '../aarau_data/processed/aarau_pb_vote_new.csv'
+    projects_file_path = '../aarau_data/processed/aarau_projects.csv'
 
     votes_df = pd.read_csv(source_file_path)
     projects_df = pd.read_csv(projects_file_path)
 
+    print(f"Source File: {source_file_path}")
+    print(f"Total Rows: {votes_df.shape[0]}")
+    print(f"Total Columns: {votes_df.shape[1]}")
+    # print("First Few Rows of the Source File:")
+    # print(votes_df.head(), "\n")
+
     votes_df = votes_df[votes_df['votes'].notna() & (votes_df['votes'] != '')]
-    votes_df['vote'] = votes_df['votes'].apply(lambda x: [int(vote.strip()) for vote in x.split(',')])
+
+    votes_df['real_votes'] = votes_df['votes'].apply(lambda x: {int(vote.strip()) for vote in x.split(',')})
+    votes_df = votes_df.drop(columns=['votes'])
 
     projects = projects_df.to_dict(orient='records')
     personas = votes_df.to_dict(orient='records')
 
     source_file_name = os.path.basename(source_file_path)
     run_pb_voting(n_steps=500, max_tokens=800, projects=projects, personas=personas, source_file_name=source_file_name)
+
