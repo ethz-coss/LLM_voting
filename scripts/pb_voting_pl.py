@@ -79,14 +79,14 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name):
     vote_counts_random = defaultdict(int)
 
     file_base_name = source_file_name.split('/')[-1].split('.')[0]
-    detailed_stats_path = f"outcome/{file_base_name}_detailed_stats.csv"
+    detailed_stats_path = f"../aarau_outcome/{file_base_name}_detailed_stats.csv"
 
     counter = 1
     while os.path.exists(detailed_stats_path):
-        detailed_stats_path = f"outcome/{file_base_name}_detailed_stats_{counter}.csv"
+        detailed_stats_path = f"../aarau_outcome/{file_base_name}_detailed_stats_{counter}.csv"
         counter += 1
 
-    detailed_headers = ['agent_id', 'voter_id', 'age', 'gender', 'agent_votes', 'random_votes', 'real_votes',
+    detailed_headers = ['agent_id', 'voter_id', 'age', 'gender', 'agent_vote', 'random_votes', 'real_votes',
                         'agent_accuracy', 'agent_recall', 'random_accuracy', 'random_recall']
     with open(detailed_stats_path, mode='w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=detailed_headers)
@@ -139,7 +139,7 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name):
             'voter_id': voter_id,
             'age': age,
             'gender': gender,
-            'agent_votes': agent_votes,
+            'agent_vote': agent_votes,
             'random_votes': random_votes,
             'real_votes': real_votes,
             'agent_accuracy': agent_accuracy,
@@ -175,7 +175,7 @@ def create_outcome_table(projects_df, vote_counts):
 
 def save_results_to_csv(sorted_votes, projects):
     headers = ['Id', 'Name', 'District', 'Category', 'Cost', 'Vote Count']
-    outcome_folder = 'outcome'
+    outcome_folder = 'aarau_outcome'
     if not os.path.exists(outcome_folder):
         os.makedirs(outcome_folder)
 
@@ -195,7 +195,7 @@ def save_results_to_csv(sorted_votes, projects):
 
 
 if __name__ == '__main__':
-    source_file_path = '../pb_projects/poland_warszawa_2018_bialoleka.pb'
+    source_file_path = '../polish_pb_projects/poland_warszawa_2018_bialoleka.pb'
     meta_df, projects_df, votes_df = read_pb_file(source_file_path)
     votes_df = votes_df[votes_df['vote'].apply(len) == 5]
 
