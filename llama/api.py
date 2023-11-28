@@ -20,7 +20,7 @@ class Message:
 
         """
         self.time = time
-        self.content = content.strip()
+        self.content = content
         self.role = role
 
     def to_chat_completion_query(self):
