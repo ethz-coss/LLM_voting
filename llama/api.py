@@ -20,7 +20,7 @@ class Message:
 
         """
         self.time = time
-        self.content = content.strip()
+        self.content = content
         self.role = role
 
     def to_chat_completion_query(self):
@@ -36,9 +36,9 @@ class Message:
         return self.__str__()
 
 
-def chat_request(messages: List[Message], max_tokens: int = 16, temperature: float = 0.8) -> List[Message]:
+def chat_request(messages: List[Message], max_tokens: int = 0, temperature: float = 0.8) -> List[Message]:
     assert 0 <= temperature <= 2, "temperature must be between 0 and 2"
-    assert 1 <= max_tokens <= 2048, "max_tokens must be between 1 and 2048"
+    assert 0 <= max_tokens <= 2048, "max_tokens must be between 0 (unlimited) and 2048"
     assert len(messages) > 0, "messages must not be empty"
 
     response = requests.post(f'{API_URL}/v1/chat/completions',
@@ -66,10 +66,10 @@ def chat_request(messages: List[Message], max_tokens: int = 16, temperature: flo
 
 
 
-def complete_request(messages: List[Message], max_tokens: int = 16, temperature: float = 0.8,
+def complete_request(messages: List[Message], max_tokens: int = 0, temperature: float = 0.8,
                      logprobs: int = 5) -> dict:
     assert 0 <= temperature <= 2, "temperature must be between 0 and 2"
-    assert 1 <= max_tokens <= 2048, "max_tokens must be between 1 and 2048"
+    assert 0 <= max_tokens <= 2048, "max_tokens must be between 0 (unlimited) and 2048"
     assert len(messages) > 0, "messages must not be empty"
 
     response = requests.post(f'{API_URL}/v1/completions',
