@@ -43,7 +43,7 @@ Models can be downloaded from
 To deploy the model, open a terminal window and run the following script (choose according to the model size):
 
 ```
-python -m llama_cpp.server --model models/llama-2-70b-chat.Q4_K_M.gguf  --n_gpu_layers 83 --interrupt_requests f --n_batch 224 # 70b model
+python -m llama_cpp.server --model models/llama-2-70b-chat.Q8_0.gguf  --n_gpu_layers 83 --interrupt_requests f --n_batch 224 # 70b model
 ```
 
 Just replace the `--model` argument with your desired model file.
