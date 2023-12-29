@@ -3,10 +3,15 @@ import json
 
 import requests
 import numpy as np
+import os
+
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', "null")
 
 API_URL = 'http://10.249.72.2:8000'
 # API_URL = 'http://localhost:8000'
 
+headers = {'Content-Type': 'application/json',
+           "Authorization": f'Bearer {OPENAI_API_KEY}'}
 
 class Message:
     def __init__(self, time: int, content: str, role: str):
@@ -42,7 +47,7 @@ def chat_request(messages: List[Message], max_tokens: int = 0, temperature: floa
     assert len(messages) > 0, "messages must not be empty"
 
     response = requests.post(f'{API_URL}/v1/chat/completions',
-                             headers={'Content-Type': 'application/json'},
+                             headers=headers,
                              data=json.dumps({
                                  "messages": [message.to_chat_completion_query() for message in messages],
                                  "max_tokens": max_tokens,
@@ -73,7 +78,7 @@ def complete_request(messages: List[Message], max_tokens: int = 0, temperature: 
     assert len(messages) > 0, "messages must not be empty"
 
     response = requests.post(f'{API_URL}/v1/completions',
-                             headers={'Content-Type': 'application/json'},
+                             headers=headers,
                              data=json.dumps({
                                  "prompt": " ".join([message.content for message in messages]),
                                  "max_tokens": max_tokens,
