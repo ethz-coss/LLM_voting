@@ -27,6 +27,10 @@ def get_top_votes(vote_counts):
 def calculate_average(stats, key):
     return sum(stat[key] for stat in stats) / len(stats) if stats else 0
 
+def extract_factors_from_response(response_content):
+    matches = re.findall(r'\[(.*?)\]', response_content)
+    return matches  # This will be a list of all matches
+
 def get_next_file_number(directory, pattern):
     existing_files = os.listdir(directory)
     highest_number = 0
@@ -37,6 +41,9 @@ def get_next_file_number(directory, pattern):
             highest_number = max(highest_number, number)
     return highest_number + 1
 
+def parse_votes(vote_str):
+    votes = vote_str.strip("[]").split(',')
+    return {int(vote.strip().strip("'")) for vote in votes if vote.strip()}
 
 def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name, detailed_stats_path):
     agents = [agent.Agent(aid=i, recall=10, initial_context=create_initial_context(persona), temperature=0) for i, persona in enumerate(personas)]
@@ -48,9 +55,8 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name, det
 
     with open(detailed_stats_path, mode='w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=list(personas[0].keys()) + [
-            'agent_votes', 'random_votes',
-            'agent_accuracy', 'agent_recall', 'random_accuracy',
-            'random_recall', 'response'
+            'agent_votes', 'random_votes', 'agent_accuracy', 'agent_recall',
+            'random_accuracy', 'random_recall', 'factor', 'response'
         ])
         writer.writeheader()
 
@@ -66,11 +72,16 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name, det
              for project in random_projects])
 
         trigger_content = (
-            f"As part of a citywide participatory budgeting exercise, you have the opportunity to help decide how a budget of $50,000 should be allocated. "
-            f"Think about your prefernce in location and category of urban projects. Vote as your assigned persona. Below is a list of potential projects for funding:"
+            "You are participating in a citywide participatory budgeting exercise with a budget of $50,000. "
+            "Your task is to help decide how this budget should be allocated based on your preferences. "
+            "Consider your assigned persona and their preferences in location and category of urban projects. "
+            "Below is a list of potential projects for funding:\n"
             f"{projects_info}\n"
-            f"Please select and respond with the IDs of up to {n_proj} project(s) you think should be funded after reading the whole list of projects. "
-            f"List your chosen projects by their IDs, prefixed with '#', in a simple, comma-separated format."
+            f"You are to select up to {n_proj} project(s) that you think should be funded. "
+            "Please read the entire list before making a decision. "
+            "Note: The size of the project ID number should not influence your choice. "
+            "In your response, use square brackets '[]' to include one key factor that most influences your decision. "
+            "Then, list your chosen projects by their ID numbers, prefixed with a hashtag '#', in a simple, comma-separated format. "
         )
 
         trigger_sentence = Message(time=1, content=trigger_content, role="user")
@@ -82,6 +93,7 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name, det
         random_accuracy, random_recall = calculate_accuracy_and_recall(random_votes, real_votes)
 
         formatted_response = response.content.replace('\n', ' ')
+        factors = extract_factors_from_response(formatted_response)
 
         stats = persona.copy()
         stats.update({
@@ -91,6 +103,7 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name, det
             'agent_recall': agent_recall,
             'random_accuracy': random_accuracy,
             'random_recall': random_recall,
+            'factors': str(factors),
             'response': formatted_response
         })
 
@@ -111,14 +124,22 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name, det
         updated_average_random_accuracy = calculate_average(all_stats, 'random_accuracy')
         updated_average_random_recall = calculate_average(all_stats, 'random_recall')
 
+        intersection_agent_real = real_votes & agent_votes
+        intersection_random_real = real_votes & random_votes
+
         print(
             f"A{current_agent.id} | "
             f"Age: {persona['Age']} | "
             f"Gender: {persona['Gender']} | "
             f"Politics: {persona['Politics']} | "
             f"Description: {persona['Description']} | "
+            f"Topics: {persona['Topics']} | "
+            f"Key factor: {factors} | "
             f"Real Votes: {persona['real_votes']} | "
             f"Agent Votes: {agent_votes} | "
+            f"Random Votes: {random_votes} | "
+            f"Intersect AR: {intersection_agent_real} | "
+            f"Intersect RR: {intersection_random_real} | "
             f"Acc/Rec: {updated_average_agent_accuracy:.1%}/{updated_average_agent_recall:.1%} | "
             f"Ran Acc/Rec: {updated_average_random_accuracy:.1%}/{updated_average_random_recall:.1%}"
         )
@@ -126,8 +147,8 @@ def run_pb_voting(n_steps, max_tokens, projects, personas, source_file_name, det
         print(formatted_response)
 
 if __name__ == '__main__':
-    model_name = 'sm'
-    source_file_path = 'aarau_data/processed/aarau_pb_vote_test.csv'
+    model_name = '70bQ80'
+    source_file_path = 'aarau_data/processed/aarau_pb_vote_description.csv'
     projects_file_path = 'aarau_data/processed/aarau_projects.csv'
 
     print(f"Source File: {source_file_path}")
@@ -136,10 +157,10 @@ if __name__ == '__main__':
 
     print(f"Total Columns: {votes_df.shape[1]}")
 
-    votes_df = votes_df[votes_df['votes'].notna() & (votes_df['votes'] != '')]
+    votes_df = votes_df[votes_df['Votes'].notna() & (votes_df['Votes'] != '')]
 
-    votes_df['real_votes'] = votes_df['votes'].apply(lambda x: {int(vote.strip()) for vote in x.split(',')})
-    votes_df = votes_df.drop(columns=['votes'])
+    votes_df['real_votes'] = votes_df['Votes'].apply(parse_votes)
+    votes_df = votes_df.drop(columns=['Votes'])
 
     projects = projects_df.to_dict(orient='records')
     personas = votes_df.to_dict(orient='records')
