@@ -1,16 +1,15 @@
-from llama import Message
-import agent
-import yaml
 import json
-import pandas as pd
-from typing import List, Tuple
-import random
+from typing import List
 import re
 import sys
 import csv
 import os
-
 sys.path.insert(0, f"{os.path.dirname(os.path.realpath(__file__))}/../")
+import agent
+from llama import Message
+
+num_voter = 1
+temp=1
 
 def get_next_file_number(directory, pattern):
     max_number = 0
@@ -65,8 +64,6 @@ instruction_labels = {
 instructions = [appr_ins, kapp_ins, cumu_ins, rank_ins]
 
 header, *lines = projects.strip().split('\n')
-num_voter = 1
-
 
 def generate_file_paths(target_directory, model_name, label, suffix, is_json=False):
     file_extension = 'json' if is_json else 'csv'
@@ -89,8 +86,7 @@ project_info = get_project_info(projects)
 
 def save_outcome_to_csv(sorted_votes, project_info, file_path):
     with open(file_path, mode='w', newline='') as csv_file:
-        fieldnames = ['Rank', 'Votes', 'Id',
-                      'Name', 'District', 'Category', 'Cost']
+        fieldnames = ['Rank', 'Votes', 'Id', 'Name', 'District', 'Category', 'Cost']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for rank, (project_id, total_votes) in enumerate(sorted_votes, start=1):
@@ -131,8 +127,7 @@ def reverse_project_ids(projects):
 
 
 def parse_cumu_votes(response):
-    point_allocations = re.findall(
-        r'(#\d+(?:, #\d+)*)(.*?)\s*(\d+)\s*point', response, re.IGNORECASE)
+    point_allocations = re.findall(r'(#\d+(?:, #\d+)*)(.*?)\s*(\d+)\s*point', response, re.IGNORECASE)
     votes = {}
     for project_group, _, points in point_allocations:
         project_ids = re.findall(r'#(\d+)', project_group)
@@ -144,8 +139,7 @@ def parse_cumu_votes(response):
 
 def parse_rank_votes(response):
     project_ids = re.findall(r'#(\d+)', response)
-    ranks = {int(project_ids[i]): i +
-             1 for i in range(min(5, len(project_ids)))}
+    ranks = {int(project_ids[i]): i + 1 for i in range(min(5, len(project_ids)))}
     if any(rank > 5 for rank in ranks.values()):
         print(f"INVALID RANKS: {ranks}")
         print(project_ids)
@@ -165,8 +159,7 @@ def create_initial_context():
 
 
 def run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps: int = 180, max_tokens: int = 600) -> List[dict]:
-    agents = [agent.Agent(aid=i, recall=2, initial_context=create_initial_context(
-    ), temperature=0.8) for i in range(num_voter)]
+    agents = [agent.Agent(aid=i, recall=2, initial_context=create_initial_context(), temperature=temp) for i in range(num_voter)]
     vote_counts = {i: 0 for i in range(1, 25)}
     voting_data = []
 
@@ -176,12 +169,12 @@ def run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps: int =
 
     if reversed:
         project_display = reverse_project_list(projects)
-        print("REVERSED ORDER LIST:")
-        print(project_display+"\n")
+        # print("REVERSED ORDER LIST:")
+        # print(project_display+"\n")
     elif id_reversed:
-        print("REVERSED ID LIST:")
+        # print("REVERSED ID LIST:")
         project_display = reverse_project_ids(projects)
-        print(project_display+"\n")
+        # print(project_display+"\n")
     else:
         project_display = projects
 
@@ -215,8 +208,7 @@ def run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps: int =
             for project_id, points in votes.items():
                 vote_counts[project_id] += points
         else:
-            selected_projects = {int(match.group(1)) for match in re.finditer(
-                r'#(\d+)', formatted_response)}
+            selected_projects = {int(match.group(1)) for match in re.finditer(r'#(\d+)', formatted_response)}
             for p in selected_projects:
                 if p in vote_counts:
                     vote_counts[p] += 1
@@ -253,8 +245,7 @@ def print_top_votes(vote_counts, top_n=10):
 
 def save_results_to_csv(voting_data, file_path):
     with open(file_path, mode='w', newline='') as csv_file:
-        fieldnames = ['agent_id', 'votes', 'response',
-                      'initial_context', 'trigger_sentence']
+        fieldnames = ['agent_id', 'votes', 'response', 'initial_context', 'trigger_sentence']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for data in voting_data:
@@ -272,7 +263,6 @@ if __name__ == '__main__':
     if not os.path.exists(target_directory):
         os.makedirs(target_directory)
 
-    # Include kapp_ins twice for special cases
     all_instructions = instructions + [kapp_ins, kapp_ins]
     labels = ['appr', 'kapp', 'cumu', 'rank', 'reversed_order', 'reversed_id']
 
@@ -281,16 +271,11 @@ if __name__ == '__main__':
         id_reversed = ins_index == 5  # True for reversed IDs (6th index)
         label = labels[ins_index]
 
-        votes, outcome = run_pb_voting(
-            instruction, reversed=reversed, id_reversed=id_reversed, n_steps=180, max_tokens=600)
-
-        vote_path = generate_file_paths(
-            target_directory, model_name, label, 'votes', is_json=True)
-        outcome_path = generate_file_paths(
-            target_directory, model_name, label, 'outcome')
+        votes, outcome = run_pb_voting(instruction, reversed=reversed, id_reversed=id_reversed, n_steps=180, max_tokens=600)
+        vote_path = generate_file_paths(target_directory, model_name, label, 'votes', is_json=True)
+        outcome_path = generate_file_paths(target_directory, model_name, label, 'outcome')
 
         save_results_to_json(votes, vote_path)
         save_outcome_to_csv(outcome, project_info, outcome_path)
 
-        print(
-            f"\nCompleted: {instruction_labels[instruction if ins_index < 4 else label]} Voting")
+        print(f"\nCompleted: {instruction_labels[instruction if ins_index < 4 else label]} Voting")
