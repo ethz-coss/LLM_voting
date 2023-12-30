@@ -1,17 +1,25 @@
 from typing import List
 import json
-
 import requests
 import numpy as np
 import os
+from dotenv import load_dotenv
 
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', "null")
+# Load environment variables from .env file
+load_dotenv()
 
-API_URL = 'http://10.249.72.2:8000'
-# API_URL = 'http://localhost:8000'
+# Get API key from environment variable
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-headers = {'Content-Type': 'application/json',
-           "Authorization": f'Bearer {OPENAI_API_KEY}'}
+headers = {'Content-Type': 'application/json'}
+
+if OPENAI_API_KEY:
+    headers["Authorization"] = f'Bearer {OPENAI_API_KEY}'
+    API_URL = 'https://api.openai.com/v1' 
+    using_openai_api = True
+else:
+    API_URL = 'http://10.249.72.2:8000'
+    using_openai_api = False
 
 class Message:
     def __init__(self, time: int, content: str, role: str):
@@ -40,36 +48,56 @@ class Message:
     def __repr__(self):
         return self.__str__()
 
-
 def chat_request(messages: List[Message], max_tokens: int = 0, temperature: float = 0.8) -> List[Message]:
     assert 0 <= temperature <= 2, "temperature must be between 0 and 2"
     assert 0 <= max_tokens <= 2048, "max_tokens must be between 0 (unlimited) and 2048"
     assert len(messages) > 0, "messages must not be empty"
 
-    response = requests.post(f'{API_URL}/v1/chat/completions',
-                             headers=headers,
-                             data=json.dumps({
-                                 "messages": [message.to_chat_completion_query() for message in messages],
-                                 "max_tokens": max_tokens,
-                                 "temperature": temperature,
-                                 "presence_penalty": 1,
-                                 "frequency_penalty": 1,
-                                 "repeat_penalty": 1,
-                                 "top_k": 5,
-                                 "mirostat_mode": 2
-                             }))
+    if using_openai_api:
+        temperature = 1
+        response = requests.post(f'{API_URL}/chat/completions',
+                                 headers=headers,
+                                 json={
+                                     "model": "gpt-4-1106-preview",  
+                                     "messages": [message.to_chat_completion_query() for message in messages],
+                                     "max_tokens": max_tokens,
+                                     "temperature": temperature
+                                 })
+    else:
+        temperature = 0.8
+        response = requests.post(f'{API_URL}/v1/chat/completions',
+                                 headers=headers,
+                                 data=json.dumps({
+                                     "messages": [message.to_chat_completion_query() for message in messages],
+                                     "max_tokens": max_tokens,
+                                     "temperature": temperature,
+                                     "presence_penalty": 1,
+                                     "frequency_penalty": 1,
+                                     "repeat_penalty": 1,
+                                     "top_k": 5,
+                                     "mirostat_mode": 2
+                                 }))
 
-    if 'error' in response.json().keys():
-        print(response.json()['error'])
+    if response.status_code != 200:
+        print(f"Error in API call: {response.text}")
+        return None
 
-    answer = response.json()['choices'][0]['message']['content']
+    response_data = response.json()
+
+    try:
+        if using_openai_api:
+            answer = response_data['choices'][0]['message']['content']
+        else:
+            answer = response_data['choices'][0]['text']
+    except KeyError:
+        print("Error: Unexpected response format.")
+        return None
+
     time = int(np.max([message.time for message in messages]) + 1)
     role = 'assistant'
     messages.append(Message(time=time, content=answer, role=role))
 
     return messages[-1]
-
-
 
 def complete_request(messages: List[Message], max_tokens: int = 0, temperature: float = 0.8,
                      logprobs: int = 5) -> dict:
