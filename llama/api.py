@@ -17,9 +17,11 @@ if OPENAI_API_KEY:
     headers["Authorization"] = f'Bearer {OPENAI_API_KEY}'
     API_URL = 'https://api.openai.com/v1' 
     using_openai_api = True
+    print('Using OPENAI')
 else:
-    API_URL = 'http://10.249.72.2:8000'
+    API_URL = 'http://localhost:8000'
     using_openai_api = False
+    print('Using LOCALHOST')
 
 class Message:
     def __init__(self, time: int, content: str, role: str):
@@ -85,10 +87,7 @@ def chat_request(messages: List[Message], max_tokens: int = 0, temperature: floa
     response_data = response.json()
 
     try:
-        if using_openai_api:
-            answer = response_data['choices'][0]['message']['content']
-        else:
-            answer = response_data['choices'][0]['text']
+        answer = response_data['choices'][0]['message']['content']
     except KeyError:
         print("Error: Unexpected response format.")
         return None
