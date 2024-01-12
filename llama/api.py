@@ -54,9 +54,8 @@ def chat_request(messages: List[Message], max_tokens: int = 0, temperature: floa
     assert 0 <= temperature <= 2, "temperature must be between 0 and 2"
     assert 0 <= max_tokens <= 2048, "max_tokens must be between 0 (unlimited) and 2048"
     assert len(messages) > 0, "messages must not be empty"
-
+    print('TEMP '+ str(temperature))
     if using_openai_api:
-        temperature = 1
         response = requests.post(f'{API_URL}/chat/completions',
                                  headers=headers,
                                  json={
@@ -66,7 +65,6 @@ def chat_request(messages: List[Message], max_tokens: int = 0, temperature: floa
                                      "temperature": temperature
                                  })
     else:
-        temperature = 0.8
         response = requests.post(f'{API_URL}/v1/chat/completions',
                                  headers=headers,
                                  data=json.dumps({

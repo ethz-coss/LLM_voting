@@ -8,8 +8,7 @@ sys.path.insert(0, f"{os.path.dirname(os.path.realpath(__file__))}/../")
 import agent
 from llama import Message
 
-num_voter = 1
-temp=1
+num_voter = 180
 
 def get_next_file_number(directory, pattern):
     max_number = 0
@@ -158,7 +157,7 @@ def create_initial_context():
     return Message(time=0, content=content, role="system")
 
 
-def run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps: int = 180, max_tokens: int = 600) -> List[dict]:
+def run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps: int = 180, max_tokens: int = 600, temp: float = 1) -> List[dict]:
     agents = [agent.Agent(aid=i, recall=2, initial_context=create_initial_context(), temperature=temp) for i in range(num_voter)]
     vote_counts = {i: 0 for i in range(1, 25)}
     voting_data = []
@@ -169,12 +168,12 @@ def run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps: int =
 
     if reversed:
         project_display = reverse_project_list(projects)
-        # print("REVERSED ORDER LIST:")
-        # print(project_display+"\n")
+        print("REVERSED ORDER LIST:")
+        print(project_display+"\n")
     elif id_reversed:
-        # print("REVERSED ID LIST:")
+        print("REVERSED ID LIST:")
         project_display = reverse_project_ids(projects)
-        # print(project_display+"\n")
+        print(project_display+"\n")
     else:
         project_display = projects
 
@@ -259,23 +258,31 @@ def save_results_to_json(voting_data, file_path):
 
 if __name__ == '__main__':
     model_name = "gpt4t"
-    target_directory = 'lab_outcome/gpt4t_vote'
-    if not os.path.exists(target_directory):
-        os.makedirs(target_directory)
+    temperature_settings = [0, 0.5, 1, 1.5, 2]  
 
-    all_instructions = instructions + [kapp_ins, kapp_ins]
-    labels = ['appr', 'kapp', 'cumu', 'rank', 'reversed_order', 'reversed_id']
+    for temp in temperature_settings:
+        temp_str = str(temp).replace('.', 'p')  
+        target_directory = f'lab_outcome/{model_name}_vote_temp{temp_str}'
+        
+        if not os.path.exists(target_directory):
+            os.makedirs(target_directory)
 
-    for ins_index, instruction in enumerate(all_instructions):
-        reversed = ins_index == 4  # True for reversed order (5th index)
-        id_reversed = ins_index == 5  # True for reversed IDs (6th index)
-        label = labels[ins_index]
+        # all_instructions = instructions + [kapp_ins, kapp_ins]
+        # labels = ['appr', 'kapp', 'cumu', 'rank', 'reversed_order', 'reversed_id']
+            
+        instructions = [kapp_ins]  
+        labels = ['kapp']  
 
-        votes, outcome = run_pb_voting(instruction, reversed=reversed, id_reversed=id_reversed, n_steps=180, max_tokens=600)
-        vote_path = generate_file_paths(target_directory, model_name, label, 'votes', is_json=True)
-        outcome_path = generate_file_paths(target_directory, model_name, label, 'outcome')
+        for ins_index, instruction in enumerate(instructions):
+            # reversed = ins_index == 0  # Set these flags as needed
+            # id_reversed = ins_index == 1  # Set these flags as needed
+            label = labels[ins_index]
 
-        save_results_to_json(votes, vote_path)
-        save_outcome_to_csv(outcome, project_info, outcome_path)
+            votes, outcome = run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps=180, max_tokens=600, temp = temp)
+            vote_path = generate_file_paths(target_directory, model_name, label, 'votes', is_json=True)
+            outcome_path = generate_file_paths(target_directory, model_name, label, 'outcome')
 
-        print(f"\nCompleted: {instruction_labels[instruction if ins_index < 4 else label]} Voting")
+            save_results_to_json(votes, vote_path)
+            save_outcome_to_csv(outcome, project_info, outcome_path)
+
+            print(f"\nCompleted: {instruction_labels[instruction if ins_index < 4 else label]} Voting")
