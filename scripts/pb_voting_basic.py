@@ -19,6 +19,14 @@ def get_next_file_number(directory, pattern):
             max_number = max(max_number, number)
     return max_number + 1
 
+def load_descriptions(csv_file_path):
+    descriptions = []
+    with open(csv_file_path, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            descriptions.append(row['Description'])
+    return descriptions
+
 projects = '''
 Id,Name,District,Category,Cost
 #1,Planting Workshops at Oerlikon,Nord,Nature,5000
@@ -151,14 +159,15 @@ def borda_score(ranks):
     print(ranks)
     return points
 
-
-def create_initial_context():
-    content = ("In this participatory budgeting program, you will be voting for the allocation of the 50,000 CHF on city projects in Zurich. You are a university student in Zurich. Think about what projects you would personally like to be funded here. Make sure your votes reflects your preference. The explaination should be very short.")
+def create_initial_context(description):
+    content = (
+        f"In this participatory budgeting program, you will be voting for the allocation of the 50,000 CHF on city projects in Zurich. {description} Think about what projects you would personally like to be funded here. Make sure your votes reflect your preference. The explanation should be very short."
+    )
     return Message(time=0, content=content, role="system")
 
 
-def run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps: int = 180, max_tokens: int = 600, temp: float = 1) -> List[dict]:
-    agents = [agent.Agent(aid=i, recall=2, initial_context=create_initial_context(), temperature=temp) for i in range(num_voter)]
+def run_pb_voting(instruction, descriptions, reversed=False, id_reversed=False, n_steps: int = 180, max_tokens: int = 600, temp: float = 1) -> List[dict]:
+    agents = [agent.Agent(aid=i, recall=2, initial_context=create_initial_context(descriptions[i]), temperature=temp) for i in range(num_voter)]
     vote_counts = {i: 0 for i in range(1, 25)}
     voting_data = []
 
@@ -219,6 +228,7 @@ def run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps: int =
         voting_data.append({
             'agent_id': current_agent.id,
             'votes': votes,
+            'temperature': temp,
             'response': formatted_response,
             'initial_context': initial_context_content,
             'trigger_sentence': trigger_sentence_content
@@ -258,11 +268,13 @@ def save_results_to_json(voting_data, file_path):
 
 if __name__ == '__main__':
     model_name = "gpt4t"
-    temperature_settings = [0, 0.5, 1, 1.5, 2]  
+    # temperature_settings = [0, 0.5, 1, 1.5, 2]  
+    temperature_settings = [1]  
+    descriptions = load_descriptions('data/lab_meta.csv')  # Replace with your actual CSV file path
 
     for temp in temperature_settings:
         temp_str = str(temp).replace('.', 'p')  
-        target_directory = f'lab_outcome/{model_name}_vote_temp{temp_str}'
+        target_directory = f'lab_outcome/{model_name}_vote_temp{temp_str}_persona'
         
         if not os.path.exists(target_directory):
             os.makedirs(target_directory)
@@ -278,7 +290,7 @@ if __name__ == '__main__':
             # id_reversed = ins_index == 1  # Set these flags as needed
             label = labels[ins_index]
 
-            votes, outcome = run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps=180, max_tokens=600, temp = temp)
+            votes, outcome = run_pb_voting(instruction, reversed=False, id_reversed=False, n_steps=180, max_tokens=600, temp = temp, descriptions=descriptions)
             vote_path = generate_file_paths(target_directory, model_name, label, 'votes', is_json=True)
             outcome_path = generate_file_paths(target_directory, model_name, label, 'outcome')
 
