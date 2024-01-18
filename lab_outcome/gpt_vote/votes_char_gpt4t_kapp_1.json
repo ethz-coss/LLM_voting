@@ -1,0 +1,16 @@
+[
+    {
+        "agent_id": 0,
+        "votes": [
+            5,
+            11,
+            17,
+            18,
+            24
+        ],
+        "temperature": 1,
+        "response": "#5, #11, #17, #18, #24",
+        "initial_context": "In this participatory budgeting program, you will be voting for the allocation of the 50,000 CHF on city projects in Zurich. You are a university student in Zurich. Think about what projects you would personally like to be funded here. Make sure your votes reflects your preference. The explaination should be very short.",
+        "trigger_sentence": "Look at 24 projects in the following table and think about your preferences in urban projects before you start voting.\nId,Name,District,Category,Cost\n#1,Planting Workshops at Oerlikon,Nord,Nature,5000\n#2,Footpath Gardens around Train Stations,Nord,Nature,10000\n#3,Kid Festival at Leutschenpark,Nord,Culture,5000\n#4,Music Studio at Kulturbahnhof Affoltern,Nord,Culture,10000\n#5,Safe Bike Paths around Irchel Park,Nord,Transportation,5000\n#6,More Night Buses to Oerlikon,Nord,Transportation,10000\n#7,Free Open Badi Space in Wollishofen,S\u00fcd,Nature,5000\n#8,A Neighborhood Garden for Wiedikon,S\u00fcd,Nature,10000\n#9,Environmental Film Session for Kids,S\u00fcd,Culture,5000\n#10,Car-free Sunday Festivals on Mutschellenstrasse,S\u00fcd,Culture,10000\n#11,Free Bike Fixing Workshops,S\u00fcd,Transportation,5000\n#12,Car Sharing System for Young People,S\u00fcd,Transportation,10000\n#13,Transforming City Spaces under Trees into Gardens,Ost,Nature,5000\n#14,More Trees in Bellevue & Sechsel\u00e4utenplatz,Ost,Nature,10000\n#15,Plant Festival in the City Centre,Ost,Culture,5000\n#16,Multicultural Festival at Sechsel\u00e4utenplatz,Ost,Culture,10000\n#17,Bike Lanes on Seefeldstrasse,Ost,Transportation,5000\n#18,Speed bumps in the City and the Lake Front,Ost,Transportation,10000\n#19,Bird Houses for Zurich-H\u00f6ngg,West,Nature,5000\n#20,Wet Biotope as Learning Garden in Frankental,West,Nature,10000\n#21,Dingtheke: Community Things Exchange Library in Wipkingen,West,Culture,5000\n#22,Sustainable Cooking Workshop with Kids,West,Culture,10000\n#23,Public Bicycle Moving Trailer to be Borrowed,West,Transportation,5000\n#24,Car-free Langstrasse,West,Transportation,10000\nSelect projects out of your personal interest using '#' and project id.Select exactly 5 projects."
+    }
+]
