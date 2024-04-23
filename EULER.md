@@ -18,7 +18,7 @@ This repository relies on the [lamma-cpp-python](https://github.com/abetlen/llam
 We first need to install the package with GPU acceleration using the following command:
 
 ```
-CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install 'llama-cpp-python[server]==0.2.17' 
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install 'llama-cpp-python[server]==0.2.64' 
 ```
 
 
@@ -37,13 +37,16 @@ Models can be downloaded from
 - 7B model: https://huggingface.co/TheBloke/Llama-2-7B-GGUF
 - 13B model: https://huggingface.co/TheBloke/Llama-2-13B-GGUF
 - 70B model: https://huggingface.co/TheBloke/Llama-2-70B-GGUF
-
+- llama 3 model: `wget https://huggingface.co/PawanKrd/Meta-Llama-3-70B-Instruct-GGUF/resolve/main/llama-3-70b-instruct.Q5_K_M.gguf`
 
 ## Deploying the model
 To deploy the model, open a terminal window and run the following script (choose according to the model size):
-
 ```
-python -m llama_cpp.server --model models/llama-2-70b-chat.Q8_0.gguf  --n_gpu_layers 83 --interrupt_requests f --n_batch 224 # 70b model
+# llama-2
+python -m llama_cpp.server --model models/llama-2-70b-chat.Q8_0.gguf  --n_gpu_layers -1 --interrupt_requests f --n_batch 224 --chat_format llama-2 # 70b model
+
+#llama-3
+python -m llama_cpp.server --model models/llama-3-70b-instruct.Q5_K_M.gguf  --n_gpu_layers -1 --interrupt_requests f --n_batch 224 --chat_format llama-3 # 70b model
 ```
 
 Just replace the `--model` argument with your desired model file.
