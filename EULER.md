@@ -21,13 +21,15 @@ We first need to install the package with GPU acceleration using the following c
 CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install 'llama-cpp-python[server]==0.2.64' 
 ```
 
+Alternatively, we can skip using `llama-cpp-python` and use the [`llama-server`](https://github.com/ggerganov/llama.cpp/tree/master/examples/server) directly:
 
 ## Model Location
-Models are currently stored in `/cluster/project/gess/coss/projects/LLMAgent/models`.
-We recommend creatig a symbolic link to this folder to make accessing the models in the succeeding scripts easy:
+Models are currently stored in `/cluster/work/coss/LLMAgent/models`. 
+We recommend creating a symbolic link to this folder to make accessing the models in the succeeding scripts easy:
+[!NOTE] `/cluster/work` is optimized for IO operations, which influences how fast the model can be loaded in memory.
 
 ```
-ln -s /cluster/project/gess/coss/projects/LLMAgent/models models
+ln -s /cluster/work/coss/LLMAgent/models models
 ```
 
 This will create a `models` folder in the root directory of this LLMagent repository.
@@ -47,12 +49,15 @@ python -m llama_cpp.server --model models/llama-2-70b-chat.Q8_0.gguf  --n_gpu_la
 
 #llama-3
 python -m llama_cpp.server --model models/llama-3-70b-instruct.Q5_K_M.gguf  --n_gpu_layers -1 --interrupt_requests f --n_batch 224 --chat_format llama-3 # 70b model
+
+#llama-server
+~/llama.cpp/llama-server --seed 42 -ngl 100 -b 224 --host 0.0.0.0 --port 8000 -chat-template llama2 -m models/llama-2-70b-chat.Q8_0.gguf
 ```
 
 Just replace the `--model` argument with your desired model file.
 
 ## Running experiments
-For running experiements in the Euler Jupyter cluster, it is necessary to first unset the `HTTP/S_PROXY` environment variables.
+For running experiments in the Euler Jupyter cluster, it is necessary to first unset the `HTTP/S_PROXY` environment variables.
 To do this, run
 ```
 unset http_proxy https_proxy
