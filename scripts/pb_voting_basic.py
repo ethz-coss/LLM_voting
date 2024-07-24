@@ -4,10 +4,11 @@ import re
 import sys
 import csv
 import os
+
+sys.path.insert(0, f"{os.path.dirname(os.path.realpath(__file__))}/../")
 import agent
 from llama import Message
 
-sys.path.insert(0, f"{os.path.dirname(os.path.realpath(__file__))}/../")
 num_voter = 180
 
 def get_next_file_number(directory, pattern):
@@ -364,7 +365,7 @@ def save_results_to_json(voting_data, file_path):
 
 
 if __name__ == '__main__':
-    model_name = "gpt4t_cot"
+    model_name = "llama2_cot"
     # temperature_settings = [0, 0.5, 1, 1.5, 2] 
     temperature_settings = [1] # default temperature
     descriptions = load_descriptions('data/lab_meta.csv')  
