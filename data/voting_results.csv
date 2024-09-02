@@ -1,0 +1,25 @@
+Vote Count,Id,Name,District,Category,Cost
+96,#23,Public Bicycle Moving Trailer to be Borrowed,West,Transportation,5000
+81,#6,More Night Buses to Oerlikon,Nord,Transportation,5000
+66,#15,Plant Festival in the City Centre,Ost,Culture,5000
+47,#18,Speed bumps in the City and the Lake Front,Ost,Transportation,5000
+26,#13,Transforming City Spaces under Trees into Gardens,Ost,Nature,5000
+25,#4,Music Studio at Kulturbahnhof Affoltern,Nord,Culture,5000
+25,#10,Car-free Sunday Festivals on Mutschellenstrasse,Süd,Culture,5000
+23,#2,Footpath Gardens around Train Stations,Nord,Nature,5000
+23,#22,Sustainable Cooking Workshop with Kids,West,Culture,5000
+18,#3,Kid Festival at Leutschenpark,Nord,Culture,5000
+12,#8,A Neighborhood Garden for Wiedikon,Süd,Nature,5000
+11,#1,Planting Workshops at Oerlikon,Nord,Nature,5000
+10,Id,Name,District,Category,Cost
+9,#12,Car Sharing System for Young People,Süd,Transportation,5000
+9,#19,Bird Houses for Zurich-Höngg,West,Nature,5000
+8,#7,Free Open Badi Space in Wollishofen,Süd,Nature,5000
+8,#9,Environmental Film Session for Kids,Süd,Culture,5000
+8,#21,Dingtheke: Community Things Exchange Library in Wipkingen,West,Culture,5000
+6,#20,Wet Biotope as Learning Garden in Frankental,West,Nature,5000
+4,#11,Free Bike Fixing Workshops,Süd,Transportation,5000
+3,#5,Safe Bike Paths around Irchel Park,Nord,Transportation,5000
+3,#17,Bike Lanes on Seefeldstrasse,Ost,Transportation,5000
+2,#16,Multicultural Festival at Sechseläutenplatz,Ost,Culture,5000
+0,#14,More Trees in Bellevue & Sechseläutenplatz,Ost,Nature,5000
