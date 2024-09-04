@@ -7,7 +7,7 @@ import os
 
 sys.path.insert(0, f"{os.path.dirname(os.path.realpath(__file__))}/../")
 import agent
-from llama import Message
+from llm import Message
 
 num_voter = 180
 
